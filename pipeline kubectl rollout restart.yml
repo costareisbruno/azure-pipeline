@@ -1,0 +1,39 @@
+parameters:
+- name: list_pods
+  type: object
+  default:
+  - atendimento
+  - cadastro
+  - equipe
+trigger:
+  enabled: false
+stages:
+- stage: Start
+  displayName: 'Rollout'
+  jobs:
+  - job: Setup
+    displayName: 'Rollout Pods'
+    pool:
+      name: repassa-agent
+    steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'kubectl config use-context $(cluster_name)'
+      displayName: 'Switch_context_K8s'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: kubectl -n $(namespace) rollout restart deploy atendimento
+      displayName: 'Rollout_pods'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: kubectl -n $(namespace) rollout restart deploy cadastro
+      displayName: 'Rollout_pods'
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: kubectl -n $(namespace) rollout restart deploy equipe
+      displayName: 'Rollout_pods'
+
